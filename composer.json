@@ -1,0 +1,31 @@
+{
+    "name": "namhuunam/imdb-sync",
+    "description": "Laravel package to sync movie ratings from OMDB API",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "namhuunam",
+            "email": "your.email@example.com"
+        }
+    ],
+    "require": {
+        "php": "^7.3|^8.0",
+        "guzzlehttp/guzzle": "^7.0.1",
+        "illuminate/support": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "namhuunam\\ImdbSync\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "namhuunam\\ImdbSync\\Providers\\ImdbSyncServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
