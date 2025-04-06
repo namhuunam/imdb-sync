@@ -31,6 +31,7 @@ Manual Execution
 You can run the synchronization manually with:
 ```bash
 php artisan imdb:sync
+php artisan imdb:sync --limit=29700
 ```
 Options:
 
