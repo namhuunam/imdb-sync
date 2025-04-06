@@ -44,11 +44,9 @@ protected function schedule(Schedule $schedule)
 {
     // Other scheduled tasks...
     
-    // Run IMDB sync daily at midnight
-    $schedule->command('imdb:sync --limit=100')->daily();
+    // Run IMDB sync every 16 minutes
+    $schedule->command('imdb:sync --limit=50')->cron('*/16 * * * *');
     
-    // Or run every hour
-    // $schedule->command('imdb:sync --limit=20')->hourly();
 }
 ```
 Make sure your Laravel scheduler is set up in your server's crontab:
