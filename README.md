@@ -15,7 +15,7 @@ APIKEY_OMDB=67bd4c17,945411bc,78a86024,47b94c53,fad1abb,88ea574e,cf3bfd86,b4a11e
 ```bash
 'providers' => [
     // Other service providers...
-    YourUsername\ImdbSync\Providers\ImdbSyncServiceProvider::class,
+    namhuunam\ImdbSync\Providers\ImdbSyncServiceProvider::class,
 ],
 ```
 # 4 Publish the configuration:
