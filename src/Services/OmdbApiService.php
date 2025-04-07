@@ -51,6 +51,9 @@ class OmdbApiService
      */
     public function getMovieDetails($title, $year)
     {
+        // Sanitize title by removing special characters
+        $sanitizedTitle = $this->sanitizeTitle($title);
+        
         // Track tried API keys to avoid infinite loops
         $triedKeys = [];
         
@@ -62,7 +65,7 @@ class OmdbApiService
                 $response = $this->client->get('', [
                     'query' => [
                         'apikey' => $apiKey,
-                        't' => $title,
+                        't' => $sanitizedTitle,
                         'y' => $year,
                     ]
                 ]);
@@ -72,7 +75,7 @@ class OmdbApiService
                 // Check for API errors that aren't "Movie not found"
                 if (isset($data['Response']) && $data['Response'] === 'False') {
                     if (isset($data['Error']) && $data['Error'] !== 'Movie not found!') {
-                        $this->logApiError($apiKey, $title, $year, $data['Error']);
+                        $this->logApiError($apiKey, $sanitizedTitle, $year, $data['Error']);
                         $this->rotateApiKey();
                         continue;
                     }
@@ -81,13 +84,35 @@ class OmdbApiService
                 return $data;
                 
             } catch (GuzzleException $e) {
-                $this->logApiError($apiKey, $title, $year, $e->getMessage());
+                $this->logApiError($apiKey, $sanitizedTitle, $year, $e->getMessage());
                 $this->rotateApiKey();
             }
         }
         
         // If we get here, all API keys have failed
         throw new OmdbApiException('All API keys failed to retrieve movie data', null);
+    }
+    
+    /**
+     * Sanitize movie title by removing special characters
+     *
+     * @param string $title
+     * @return string
+     */
+    protected function sanitizeTitle($title)
+    {
+        if (empty($title)) {
+            return '';
+        }
+        
+        // Remove special characters like parentheses, brackets, etc.
+        $sanitized = preg_replace('/[\(\)\[\]\{\}\<\>\'\"\?\!\:\;\-\_\+\=\@\#\$\%\^\&\*\~\|\\\\\/]/', ' ', $title);
+        
+        // Replace multiple spaces with a single space
+        $sanitized = preg_replace('/\s+/', ' ', $sanitized);
+        
+        // Trim whitespace from the beginning and end
+        return trim($sanitized);
     }
     
     /**
