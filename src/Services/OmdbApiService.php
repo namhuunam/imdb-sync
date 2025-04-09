@@ -72,12 +72,20 @@ class OmdbApiService
                 
                 $data = json_decode($response->getBody()->getContents(), true);
                 
-                // Check for API errors that aren't "Movie not found"
+                // Check for API errors that aren't "Movie not found" or "Incorrect IMDb ID"
                 if (isset($data['Response']) && $data['Response'] === 'False') {
-                    if (isset($data['Error']) && $data['Error'] !== 'Movie not found!') {
+                    if (isset($data['Error']) && 
+                        $data['Error'] !== 'Movie not found!' && 
+                        $data['Error'] !== 'Incorrect IMDb ID.') {
                         $this->logApiError($apiKey, $sanitizedTitle, $year, $data['Error']);
                         $this->rotateApiKey();
                         continue;
+                    }
+                    
+                    // Ghi log cho trường hợp Incorrect IMDb ID nhưng vẫn trả về dữ liệu
+                    if (isset($data['Error']) && $data['Error'] === 'Incorrect IMDb ID.') {
+                        $this->logApiError($apiKey, $sanitizedTitle, $year, $data['Error']);
+                        // Vẫn trả về dữ liệu để xử lý ở lớp trên
                     }
                 }
                 
