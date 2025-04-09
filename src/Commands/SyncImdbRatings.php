@@ -162,8 +162,18 @@ class SyncImdbRatings extends Command
             }
         } else {
             // Movie not found or other error
-            $updateData['rating_star'] = $this->getRandomRating();
-            $updateData['rating_count'] = $this->getRandomVoteCount();
+            if (isset($movieData['Error']) && $movieData['Error'] === 'Incorrect IMDb ID.') {
+                // Xử lý riêng cho lỗi "Incorrect IMDb ID"
+                $updateData['rating_star'] = $this->getRandomRatingForIncorrectId();
+                $updateData['rating_count'] = $this->getRandomVoteCount();
+                
+                // Ghi log cho trường hợp lỗi này
+                Log::channel(config('imdb-sync.log_channel'))->info("Movie ID {$movie->id} ({$title}, {$year}) has incorrect IMDb ID. Using random values.");
+            } else {
+                // Các lỗi khác sử dụng cấu hình mặc định
+                $updateData['rating_star'] = $this->getRandomRating();
+                $updateData['rating_count'] = $this->getRandomVoteCount();
+            }
         }
         
         // Update the database
@@ -179,6 +189,19 @@ class SyncImdbRatings extends Command
     {
         $min = config('imdb-sync.random_rating_min', 6.0);
         $max = config('imdb-sync.random_rating_max', 8.0);
+        return round(mt_rand($min * 10, $max * 10) / 10, 1);
+    }
+    
+    /**
+     * Get a random rating for incorrect IMDb ID case
+     *
+     * @return float
+     */
+    protected function getRandomRatingForIncorrectId()
+    {
+        // Sử dụng giá trị cụ thể cho trường hợp "Incorrect IMDb ID"
+        $min = 5.0;
+        $max = 8.0;
         return round(mt_rand($min * 10, $max * 10) / 10, 1);
     }
     
